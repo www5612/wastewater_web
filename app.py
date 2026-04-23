@@ -29,7 +29,7 @@ st.markdown("""
 @st.cache_resource
 def load_bundle():
     # 注意：确保你的 pkl 文件已更新，或者 SELECT_FEATURES 内不包含已删除的指标
-    return joblib.load('water_quality3.0.pkl')
+    return joblib.load('water_quality4.0.pkl')
 
 
 try:
@@ -81,8 +81,8 @@ def predict_core(df_input: pd.DataFrame):
         y_pred_log += final_weights[name] * model.predict(x_final)
 
     # 5. 反变换
-    y_pred_cfu = 10 ** y_pred_log - 1
-    return np.maximum(0, y_pred_cfu)
+    y_pred_mpn = 10 ** y_pred_log - 1
+    return np.maximum(0, y_pred_mpn)
 
 
 # ===================== UI 界面 =====================
@@ -120,10 +120,10 @@ with tab1:
             st.divider()
             col_res1, col_res2 = st.columns([1, 2])
             with col_res1:
-                st.metric("预测浓度 (CFU/L)", f"{res:,.0f}")
+                st.metric("预测浓度 (MPN/L)", f"{res:,.0f}")
             with col_res2:
                 if res >= 24000:
-                    st.error(f"🚨 严重警告：该样本超标严重，预测值为 {res:,.0f} CFU/L！")
+                    st.error(f"🚨 严重警告：该样本超标严重，预测值为 {res:,.0f} MPN/L！")
                 elif res >= 1000:
                     st.warning(f"⚠️ 注意：已超出排放标准 (DB11/890-2012)。")
                 else:
@@ -152,7 +152,7 @@ with tab2:
                 if st.button("📊 执行批量预测"):
                     with st.spinner('AI 正在深度计算中...'):
                         predictions = predict_core(df_upload[required_cols])
-                        df_upload['预测粪大肠菌群(CFU/L)'] = predictions
+                        df_upload['预测粪大肠菌群(MPN/L)'] = predictions
 
                     st.success("✅ 计算完成！")
                     st.dataframe(df_upload, use_container_width=True)
